@@ -64,20 +64,22 @@ def match_array(x: np.ndarray, y: np.ndarray, *,
     return LevelsAdjustment(*popt)
 
 
-def match_images(x: Image.Image, y: Image.Image, *, histogram: bool = False) -> list[LevelsAdjustment]:
+def match_images(x: Image.Image, y: Image.Image, *,
+                 resample: int = Image.LANCZOS, histogram: bool = False) -> list[LevelsAdjustment]:
     """
     Find the levels adjustments for each band from one image to another.
 
     :param x: The original image to be leveled.
     :param y: The leveled image to compare to.
-    :param histogram: Whether to level the image based solely on the histogram.
+    :param resample: Resampling filter to use when resizing images.
+    :param histogram: Whether to level the image based on the histogram only.
     :return: A list of levels adjustments for each band.
     """
     # If dimensions do not match, resize down to match
     if x.size != y.size:
         new_size = min(x.size[0], y.size[0]), min(x.size[1], y.size[1])
-        x = x.resize(new_size, resample=Image.BICUBIC)
-        y = y.resize(new_size, resample=Image.BICUBIC)
+        x = x.resize(new_size, resample=resample)
+        y = y.resize(new_size, resample=resample)
 
     # Curve fit each band separately using multiprocessing
     with concurrent.futures.ThreadPoolExecutor() as executor:
