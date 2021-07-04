@@ -38,17 +38,17 @@ def is_grayscale(image: Image.Image) -> bool:
         return True
 
     # Check the image palette if applicable
-    palette = image.getpalette()
-    if palette is not None:
-        if palette.mode in GRAYSCALE_MODES:
+    if image.palette is not None:
+        if image.palette.mode in GRAYSCALE_MODES:
             return True
-        elif palette.mode != 'RGB' and image.mode != 'RGBA':
-            raise ValueError("Unsupported image palette mode " + palette.mode)
+        elif image.palette.mode != 'RGB' and image.palette.mode != 'RGBA':
+            raise ValueError("Unsupported image palette mode " + image.palette.mode)
         else:
             # Check each color used in the image is grayscale
-            colors = np.asarray(palette).reshape((-1, len(image.mode)))[:, :3]
+            colors = np.asarray(image.getpalette()).reshape((-1, len(image.palette.mode)))[:, :3]
+            image_array = np.asarray(image)  # type: ignore
             for index, color in enumerate(colors):
-                if np.any(color[:, :] != color[:, 0]) and index in np.asarray(image):  # type: ignore
+                if np.any(color != color[0]) and index in image_array:
                     return False
             return True
 
